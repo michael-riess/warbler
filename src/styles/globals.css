@@ -1,3 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+    @apply h-screen bg-gradient-to-b from-blue-950 to-teal-700 text-slate-100;
+}

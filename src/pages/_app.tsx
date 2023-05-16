@@ -13,18 +13,18 @@ import {
 } from "@clerk/nextjs";
 
 const Header = () => (
-  <header
-    style={{ display: "flex", justifyContent: "space-between", padding: 20 }}
-  >
-    <h1>My App</h1>
-    <SignedIn>
-      {/* Mount the UserButton component */}
-      <UserButton />
-    </SignedIn>
-    <SignedOut>
-      {/* Signed out users get sign in button */}
-      <SignInButton />
-    </SignedOut>
+  <header className="flex justify-center">
+    <div className="flex w-full items-center justify-between p-5 md:max-w-2xl">
+      <h1>Warbler</h1>
+      <SignedIn>
+        {/* Mount the UserButton component */}
+        <UserButton />
+      </SignedIn>
+      <SignedOut>
+        {/* Signed out users get sign in button */}
+        <SignInButton />
+      </SignedOut>
+    </div>
   </header>
 );
 
