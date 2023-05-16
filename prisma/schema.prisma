@@ -1,23 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// DEFAUlT
-// generator client {
-//     provider = "prisma-client-js"
-//     previewFeatures = ["jsonProtocol"]
-// }
-
-// datasource db {
-//     provider = "sqlite"
-//     url      = env("DATABASE_URL")
-// }
-
-// model Example {
-//     id        String   @id @default(cuid())
-//     createdAt DateTime @default(now())
-//     updatedAt DateTime @updatedAt
-// }
-
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
@@ -28,8 +11,11 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Example {
+model Post {
   id              Int       @default(autoincrement()) @id
   createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  content         String    @db.VarChar(255)
+  authorId        Int
+
+  @@index([authorId])
 }
