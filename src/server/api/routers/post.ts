@@ -1,15 +1,17 @@
-import { type User, clerkClient } from '@clerk/nextjs/server';
+import { clerkClient } from '@clerk/nextjs/server';
 import { TRPCError } from '@trpc/server';
 import { Ratelimit } from '@upstash/ratelimit';
 // for deno: see above
 import { Redis } from '@upstash/redis';
 import { z } from 'zod';
 
+import { type DisplayableAuthor } from '~/interfaces/user';
 import {
     createTRPCRouter,
     privateProcedure,
     publicProcedure,
 } from '~/server/api/trpc';
+import { filterUserPropsForClient } from '~/server/utils/user';
 
 // Create a new ratelimiter, that allows 5 requests per 1 minute
 const ratelimit = new Ratelimit({
@@ -24,51 +26,65 @@ const ratelimit = new Ratelimit({
     prefix: '@upstash/ratelimit',
 });
 
-type DisplayableAuthor = Pick<User, 'id' | 'profileImageUrl'> & {
-    username: string;
-};
-
-const filterUserPropsForClient = (user: User) => ({
-    id: user.id,
-    username: user.username,
-    profileImageUrl: user.profileImageUrl,
-});
-
 export const postRouter = createTRPCRouter({
-    getAll: publicProcedure.query(async ({ ctx }) => {
-        const posts = await ctx.prisma.post.findMany({
-            take: 100,
-            orderBy: {
-                createdAt: 'desc',
-            },
-        });
+    getAll: publicProcedure
+        .input(
+            z
+                .object({
+                    authorId: z.string().nullish(),
+                })
+                .nullish()
+        )
+        .query(async ({ ctx, input }) => {
+            const authorId = input?.authorId;
+            const posts = await ctx.prisma.post.findMany({
+                take: 100,
+                orderBy: {
+                    createdAt: 'desc',
+                },
+                where:
+                    authorId != null
+                        ? {
+                              authorId: authorId,
+                          }
+                        : undefined,
+            });
 
-        const users = (
-            await clerkClient.users.getUserList({
-                userId: posts.map((post) => post.authorId),
-            })
-        ).map(filterUserPropsForClient);
+            const users = (
+                await clerkClient.users.getUserList({
+                    userId:
+                        authorId != null
+                            ? [authorId]
+                            : posts.map((post) => post.authorId),
+                })
+            ).map(filterUserPropsForClient);
 
-        return posts.map((post) => {
-            const author = users.find((user) => user.id === post.authorId);
-            if (!author?.username) {
-                throw new TRPCError({
-                    code: 'INTERNAL_SERVER_ERROR',
-                    message: 'Author of post not found.',
-                });
-            }
+            return posts.map((post) => {
+                const author =
+                    authorId != null
+                        ? users[0]
+                        : users.find((user) => user.id === post.authorId);
+                if (!author?.username) {
+                    throw new TRPCError({
+                        code: 'INTERNAL_SERVER_ERROR',
+                        message: 'Author of post not found.',
+                    });
+                }
 
-            return {
-                post,
-                author: author as DisplayableAuthor,
-            };
-        });
-    }),
+                return {
+                    post,
+                    author: author as DisplayableAuthor,
+                };
+            });
+        }),
 
     create: privateProcedure
         .input(
             z.object({
-                content: z.string().min(1).max(255),
+                content: z
+                    .string()
+                    .min(1, '🤏 That post is too short.')
+                    .max(255, '😵 That post is too long.'),
             })
         )
         .mutation(async ({ ctx, input }) => {
