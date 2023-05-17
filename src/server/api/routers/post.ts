@@ -27,11 +27,35 @@ const ratelimit = new Ratelimit({
 });
 
 export const postRouter = createTRPCRouter({
+    getById: publicProcedure
+        .input(z.object({ id: z.string() }))
+        .query(async ({ ctx, input }) => {
+            const post = await ctx.prisma.post.findUnique({
+                where: { id: input.id },
+            });
+            if (!post)
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: 'Post does not exist.',
+                });
+            // wish there was a way to do this with a single query
+            const [author] = (
+                await clerkClient.users.getUserList({
+                    userId: [post.authorId],
+                })
+            ).map(filterUserPropsForClient);
+
+            return {
+                post,
+                author: author as DisplayableAuthor,
+            };
+        }),
+
     getAll: publicProcedure
         .input(
             z
                 .object({
-                    authorId: z.string().nullish(),
+                    authorId: z.string().nullish(), // allow filtering by specific author e.g. profile page feed
                 })
                 .nullish()
         )
@@ -50,6 +74,7 @@ export const postRouter = createTRPCRouter({
                         : undefined,
             });
 
+            // wish there was a way to do this with a single query
             const users = (
                 await clerkClient.users.getUserList({
                     userId:

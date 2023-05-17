@@ -33,7 +33,7 @@ const HeaderNav = () => (
 const SideNav = () => {
     return (
         <header>
-            <div className="h-16 flex flex-col w-full items-center justify-between md:max-w-xl mt-4">
+            <div className="h-16 flex flex-col w-full items-center justify-between md:max-w-xl mt-4d">
                 <SignedIn>
                     <UserButton
                         appearance={{
@@ -81,7 +81,7 @@ const MyApp: AppType = ({ Component, pageProps }) => (
             <HeaderNav />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-7 lg:grid-cols-12">
-            <div className="hidden sm:block col-start-1 lg:col-start-2">
+            <div className="hidden sm:block col-start-1 lg:col-start-2 mt-4">
                 <SideNav />
             </div>
 

@@ -1,15 +1,17 @@
 import { createServerSideHelpers } from '@trpc/react-query/server';
+import { TRPCError } from '@trpc/server';
 import { type GetServerSideProps, type NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 import superjson from 'superjson';
 
-import { Page404 } from '~/components/404';
 import { Feed } from '~/components/feed';
 import { PageTemplate } from '~/components/page-template';
+import { Page404 } from '~/pages/404';
 import { appRouter } from '~/server/api/root';
 import { prisma } from '~/server/db';
 import { api } from '~/utils/api';
+import { getUserAtTag } from '~/utils/user';
 
 /**
  * Fetches data ahead of time and hyrdates through server-side props.
@@ -44,28 +46,32 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
         username,
     });
 
+    if (!data) return <Page404 />;
+
     return (
         <>
             <Head>
-                <title>Profile</title>
+                <title>{`${data.username}`}</title>
             </Head>
             <PageTemplate>
-                {data && (
-                    <div>
-                        <div className="border-b border-yellow-200 bg-yellow-600">
-                            <Image
-                                src={data.profileImageUrl}
-                                alt={`${data.username ?? ''}`}
-                                width={48}
-                                height={48}
-                                className="rounded-full"
-                            ></Image>
-                            {data.username}
+                <div>
+                    <div className="h-48 flex relative flex-col border-yellow-200">
+                        <div className="bg-yellow-600 h-full"></div>
+                        <div className="h-full relative">
+                            <div className="mt-12 p-3">
+                                <div>{getUserAtTag(data)}</div>
+                            </div>
                         </div>
-                        <Feed />
+                        <Image
+                            src={data.profileImageUrl}
+                            alt={`${data.username}`}
+                            width={96}
+                            height={96}
+                            className="border-4 border-blue-950 rounded-full absolute bottom-1/2 top-1/2 m-auto left-3"
+                        ></Image>
                     </div>
-                )}
-                {!data && <Page404 />}
+                    <Feed authorId={data.id} />
+                </div>
             </PageTemplate>
         </>
     );

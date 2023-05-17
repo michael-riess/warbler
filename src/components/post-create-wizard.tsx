@@ -35,7 +35,7 @@ export const PostCreateWizard = ({ isSticky }: { isSticky: boolean }) => {
     return (
         <div
             className={className(
-                'flex w-full gap-3 rounded-t-md bg-yellow-200 p-6',
+                'flex gap-3 w-full bg-yellow-200 p-6',
                 isSticky && 'sticky top-0 z-10'
             )}
         >
