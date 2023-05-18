@@ -1,0 +1,26 @@
+name: CI
+
+on: [push, pull_request]
+
+env:
+    DATABASE_URL: 'https://test-fake.com'
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        step:
+            - name: Checkout
+              uses: actions/checkout@v2
+
+            - name: Install dependencies
+              run: npm Install
+
+            - name: Typecheck
+              run: npm run Typecheck
+
+            - name: Lint
+              run: npm run Lint
+
+            - name: Print Environment Variables
+              run: echo $DATABASE_URL

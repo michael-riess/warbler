@@ -5,6 +5,7 @@ import Head from 'next/head';
 import superjson from 'superjson';
 
 import { PageTemplate } from '~/components/page-template';
+import { Post } from '~/components/post';
 import { Page404 } from '~/pages/404';
 import { appRouter } from '~/server/api/root';
 import { prisma } from '~/server/db';
@@ -45,9 +46,7 @@ const PostPage: NextPage<{ id: string }> = ({ id }) => {
                 <title>{`${data.post.content} - ${data.author.username}`}</title>
             </Head>
             <PageTemplate>
-                <div className="w-full rounded-md border-x border-yellow-200 md:max-w-2xl">
-                    Post View
-                </div>
+                <Post {...data} />
             </PageTemplate>
         </>
     );

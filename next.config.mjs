@@ -21,5 +21,12 @@ const config = {
     images: {
         domains: ['images.clerk.dev', 'images.clerk.prod'],
     },
+    typescript: {
+        ignoreBuildErrors: true, // disable on vercel since handled by github action
+    },
+    eslint: {
+        ignoreDuringBuilds: true, // disable on vercel since handled by github action
+    },
+    swcMinify: true,
 };
 export default config;
