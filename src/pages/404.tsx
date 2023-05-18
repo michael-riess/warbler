@@ -3,7 +3,7 @@ import Head from 'next/head';
 
 import { PageTemplate } from '~/components/page-template';
 
-export const Page404: NextPage = () => {
+const Page404: NextPage = () => {
     return (
         <>
             <Head>
@@ -21,3 +21,5 @@ export const Page404: NextPage = () => {
         </>
     );
 };
+
+export default Page404;
